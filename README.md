@@ -5,8 +5,6 @@
 Este é um sistema de geranciamento de Tarefas, utilizando o Framework Laravel
 
 ## Requisitos
-
-Requisitos necessário:
 - PHP 8.3
 - MSSQL
 
@@ -16,8 +14,8 @@ Para uso do sistema siga os passo abaixo:
 - Em DB_USERNAME e DB_PASSWORD, insira suas credenciais de acesso ao MSSQL
 - Cria o banco ipfory no MSSQL
 - Na pasta do projeto execute os seguintes comandos:
-- #composer install
-- #php artisan migrate
+- - #composer install
+- - #php artisan migrate
 
 ## Liceça
 
