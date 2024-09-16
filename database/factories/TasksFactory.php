@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use \Carbon\Carbon;
 
@@ -23,6 +24,7 @@ class TasksFactory extends Factory
         return [
             'title'       => fake()->sentence,
             'description' => fake()->text(350),
+            'user_id'     => User::all()->random(),
             'status'      => 'pending', # 'pending', 'progress', 'conclusion'
             'duedate_at'  => Carbon::now()->format('Y-m-d'),
         ];

@@ -1,4 +1,6 @@
+/node_modules
 /storage
 /vendor
 .devdbrc
 .env
+.phpunit.result.cache

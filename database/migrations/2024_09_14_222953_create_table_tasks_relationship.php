@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tasks_relationship', function (Blueprint $table) {
             $table->unsignedBigInteger('task_id');
             $table->unsignedBigInteger('user_id');
+            $table->timestamps();
         });
 
         Schema::table('tasks_relationship', function (Blueprint $table) {

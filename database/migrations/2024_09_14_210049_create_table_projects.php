@@ -15,9 +15,19 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('title');
             $table->longText('description')->nullable()->default(null);
+            $table->unsignedBigInteger('user_id');
             $table->dateTime('conclusion_at')->nullable()->default(null);
             $table->timestamps();
             $table->softDeletes();
+        });
+
+        Schema::table('projects', function (Blueprint $table) {
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->constrained(
+                    table: 'users', indexName: 'users_user_id'
+                );
         });
     }
 
@@ -26,6 +36,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('projects', function (Blueprint $table) {
+            $table->dropForeign('projects_user_id_foreign');
+        });
+
         Schema::dropIfExists('projects');
     }
 };

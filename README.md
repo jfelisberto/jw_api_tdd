@@ -5,17 +5,23 @@
 Este é um sistema de geranciamento de Tarefas, utilizando o Framework Laravel
 
 ## Requisitos
-- PHP 8.3
-- MSSQL
+* PHP 8.3
+* Composer
+* MSSQL
 
-## Configuração
+## Como rodar o projeto
 Para uso do sistema siga os passo abaixo:
 - Comece fazendo uma cópia do arquivo .env.example para .env
 - Em DB_USERNAME e DB_PASSWORD, insira suas credenciais de acesso ao MSSQL
 - Cria o banco ipfory no MSSQL
-- Na pasta do projeto execute os seguintes comandos:
-- - #composer install
-- - #php artisan migrate
+<br />
+Na pasta do projeto, atravez do sonsole, execute os seguintes comandos:
+- composer install
+- php artisan migrate
+
+Para iniciar o projto criado com Laravel
+- php artisan serve
+
 
 ## Liceça
 

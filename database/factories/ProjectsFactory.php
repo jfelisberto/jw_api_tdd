@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use \Carbon\Carbon;
 
@@ -21,8 +22,9 @@ class ProjectsFactory extends Factory
          * Dados fakes para popular a base
          */
         return [
-            'title' => fake()->sentence,
-            'description' => fake()->text(350),
+            'title'         => fake()->sentence,
+            'description'   => fake()->text(350),
+            'user_id'       => User::all()->random(),
             'conclusion_at' => Carbon::now()->format('Y-m-d')
         ];
     }
