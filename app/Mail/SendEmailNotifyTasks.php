@@ -3,13 +3,12 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SendEmailForgotPasswordCode extends Mailable
+class SendEmailNotifyTasks extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -21,7 +20,8 @@ class SendEmailForgotPasswordCode extends Mailable
      * @param string $formattedDate A data formatada para inclusao no e-mail.
      * @param string $formattedTime A hora formatada para inclusao no e-mail.
      */
-    public function __construct(public $user, public $code, public $formattedDate, public $formattedTime)
+    // public function __construct(public $user, public $task_id, public $task, public $subject)
+    public function __construct(public $object)
     {
         //
     }
@@ -32,7 +32,7 @@ class SendEmailForgotPasswordCode extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Recuperar de senha de acesso',
+            subject: 'Gerenciamento de tarefas',
         );
     }
 
@@ -42,8 +42,8 @@ class SendEmailForgotPasswordCode extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.sendEmailHtmlForgotPasswordCode',
-            text: 'emails.sendEmailTextForgotPasswordCode',
+            view: 'emails.send-email-html-notify-tasks',
+            text: 'emails.send-email-text-notify-tasks',
         );
     }
 

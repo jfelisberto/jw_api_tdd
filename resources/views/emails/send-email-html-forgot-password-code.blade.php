@@ -10,13 +10,13 @@
 
 <body>
 
-    <p>Prezado(a) {{ $user->name }}</p>
+    <p>Prezado(a) {{ $content->user->name }}</p>
 
     <p>Para recuperar a sua senha do app {{ env('APP_NAME') }}, use o código de verificação abaixo:</p>
 
-    <p>{{ $code }}</p>
+    <p>{{ $content->code }}</p>
 
-    <p>Por questões de segurança esse código é válido somente até as {{ $formattedTime }} do dia {{ $formattedDate }}. Caso esse prazo esteja expirado, será necessário solicitar outro código.</p>
+    <p>Por questões de segurança esse código é válido somente até as {{ $content->formatted_time }} do dia {{ $content->formatted_date }}. Caso esse prazo esteja expirado, será necessário solicitar outro código.</p>
 
     <p>Atenciosamente,</p>
 

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\ResetPasswordCodeRequest;
 use App\Http\Requests\ResetPasswordValidateCodeRequest;
-use App\Mail\SendEmailForgotPasswordCode;
+use App\Jobs\sendEmailJob;
 use App\Models\User;
 use App\Models\PasswordResetTokens;
 use App\Service\ResetPasswordValidateCodeService;
@@ -15,7 +15,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+// use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
 class RecoveryPasswordCodeController extends Controller
@@ -57,13 +57,13 @@ class RecoveryPasswordCodeController extends Controller
             /**
              * Recuperar os registros recuperar senha do usuario
              */
-            $userPasswordResets = PasswordResetTokens::where('email', $request->email);
+            $user_password_resets = PasswordResetTokens::where('email', $request->email);
 
             /**
              * Se existir token cadastrado para o usuario recuperar senha, excluir o mesmo
              */
-            if ($userPasswordResets) {
-                $userPasswordResets->delete();
+            if ($user_password_resets) {
+                $user_password_resets->delete();
             }
 
             /**
@@ -79,7 +79,7 @@ class RecoveryPasswordCodeController extends Controller
             /**
              * Salvar o token no banco de dados
              */
-            $userNewPasswordResets = PasswordResetTokens::create([
+            $user_new_password_resets = PasswordResetTokens::create([
                 'email'      => $request->email,
                 'token'      => $token,
             ]);
@@ -87,28 +87,36 @@ class RecoveryPasswordCodeController extends Controller
             /**
              * Enviar e-mail apos cadastrar no banco de dados novo token recuperar senha
              */
-            if ($userNewPasswordResets) {
+            if ($user_new_password_resets) {
 
                 /**
                  * Obter a data atual
                  */
-                $currentDate = Carbon::now();
+                $current_date = Carbon::now();
 
                 /**
                  * Adicionar uma hora
                  */
-                $oneHourLater = $currentDate->addHour();
+                $one_hour_later = $current_date->addHour();
 
                 /**
                  * Formatar data e hora
                  */
-                $formattedTime = $oneHourLater->format('H:i');
-                $formattedDate = $oneHourLater->format('d/m/Y');
+                $formatted_time = $one_hour_later->format('H:i');
+                $formatted_date = $one_hour_later->format('d/m/Y');
 
                 /**
-                 * Dados para enviar e-mail
+                 * Dados para enviar e-mail para o usuario
                  */
-                Mail::to($user->email)->send(new SendEmailForgotPasswordCode($user, $code, $formattedDate, $formattedTime));
+                $object = (object) [
+                    'template' => 'forgot-password',
+                    'email' => $user->email,
+                    'user' => $user,
+                    'code' => $code,
+                    'formatted_time' => $formatted_time,
+                    'formatted_date' => $formatted_date
+                ];
+                sendEmailJob::dispatch($object)->onQueue('sendemail');
             }
 
             /**
@@ -150,31 +158,31 @@ class RecoveryPasswordCodeController extends Controller
      * retorna uma resposta de sucesso. Caso contrario, retorna uma resposta de erro.
      *
      * @param ResetPasswordValidateCodeRequest $request O request contendo o e-mail e o codigo de recuperacao de senha
-     * @param ResetPasswordValidateCodeService $ResetPasswordValidateCodeService O servico utilizado para validar o codigo de recuperacao de senha
+     * @param ResetPasswordValidateCodeService $reset_password_validate_codeService O servico utilizado para validar o codigo de recuperacao de senha
      * Injecao de Dependência: o Laravel automaticamente resolve e injeta uma instância dessa classe no metodo quando e chamado.
      * @return \Illuminate\Http\JsonResponse Resposta indicando sucesso ou falha na validacao do codigo
      */
-    // public function resetPasswordValidateCode(ResetPasswordValidateCodeRequest $request, ResetPasswordValidateCodeService $resetPasswordValidateCode)
-    public function resetPasswordValidateCode(ResetPasswordValidateCodeRequest $request, ResetPasswordValidateCodeService $resetPasswordValidateCode)
+    // public function resetPasswordValidateCode(ResetPasswordValidateCodeRequest $request, ResetPasswordValidateCodeService $reset_password_validate_code)
+    public function resetPasswordValidateCode(ResetPasswordValidateCodeRequest $request, ResetPasswordValidateCodeService $reset_password_validate_code)
     {
 
         try {
             /**
              * Validar o codigo do token
              */
-            $validationResult = $resetPasswordValidateCode->resetPasswordValidateCode($request->email, $request->code);
+            $validation_result = $reset_password_validate_code->resetPasswordValidateCode($request->email, $request->code);
 
             /**
              * Verificar o resultado da validacao
              */
-            if (!$validationResult['status']) {
+            if (!$validation_result['status']) {
 
                 /*
                  * Retorno da API
                  */
                 return response()->json([
                     'status'  => false,
-                    'message' => $validationResult['message'],
+                    'message' => $validation_result['message'],
                 ], 400);
 
             }
@@ -244,30 +252,30 @@ class RecoveryPasswordCodeController extends Controller
      * Caso contrario, retorna uma resposta de erro.
      *
      * @param ResetPasswordCodeRequest $request O request contendo o e-mail, o codigo de recuperacao de senha e a nova senha
-     * @param ResetPasswordValidateCodeService $resetPasswordValidateCode O servico utilizado para validar o codigo de recuperacao de senha
+     * @param ResetPasswordValidateCodeService $reset_password_validate_code O servico utilizado para validar o codigo de recuperacao de senha
      * Injecao de Dependência: o Laravel automaticamente resolve e injeta uma instância dessa classe no metodo quando e chamado.
      * @return \Illuminate\Http\JsonResponse Resposta indicando sucesso ou falha na resetar da senha do usuario
      */
-    public function resetPasswordCode(ResetPasswordCodeRequest $request, ResetPasswordValidateCodeService $resetPasswordValidateCode)
+    public function resetPasswordCode(ResetPasswordCodeRequest $request, ResetPasswordValidateCodeService $reset_password_validate_code)
     {
 
         try {
             /**
              * Validar o codigo do token
              */
-            $validationResult = $resetPasswordValidateCode->resetPasswordValidateCode($request->email, $request->code);
+            $validation_result = $reset_password_validate_code->resetPasswordValidateCode($request->email, $request->code);
 
             /**
              * Verificar o resultado da validacao
              */
-            if (!$validationResult['status']) {
+            if (!$validation_result['status']) {
 
                 /*
                  * Retorno da API
                  */
                 return response()->json([
                     'status'  => false,
-                    'message' => $validationResult['message'],
+                    'message' => $validation_result['message'],
                 ], 400);
 
             }
@@ -307,13 +315,13 @@ class RecoveryPasswordCodeController extends Controller
             /**
              * Recuperar os registros recuperar senha do usuario
              */
-            $userPasswordResets = PasswordResetTokens::where('email', $request->email);
+            $user_password_resets = PasswordResetTokens::where('email', $request->email);
 
             /**
              * Se existir token cadastrado para o usuario recuperar senha, excluir o mesmo
              */
-            if ($userPasswordResets) {
-                $userPasswordResets->delete();
+            if ($user_password_resets) {
+                $user_password_resets->delete();
             }
 
             /**
