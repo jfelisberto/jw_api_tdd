@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProjectsController;
 use App\Http\Controllers\Api\RecoveryPasswordCodeController;
 use App\Http\Controllers\Api\TasksController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,8 @@ Route::middleware([
 ])->group(function () {
     Route::post('logout/{id}', [AuthController::class, 'logout']);
 
+    Route::get('/users', [UserController::class, 'index']);
+
     Route::prefix('projects')->group(function () {
         Route::get('/', [ProjectsController::class, 'index']);
         Route::get('/{id}', [ProjectsController::class, 'show']);
@@ -43,5 +46,10 @@ Route::middleware([
         Route::post('/create', [TasksController::class, 'store']);
         Route::match(['put', 'patch'], '/{id}', [TasksController::class, 'update']);
         Route::delete('/{id}', [TasksController::class, 'destroy']);
+    });
+
+    Route::prefix('tasks_relationship')->group(function () {
+        Route::post('/', [TasksController::class, 'relationshipStore']);
+        Route::delete('/', [TasksController::class, 'relationshipDelete']);
     });
 });

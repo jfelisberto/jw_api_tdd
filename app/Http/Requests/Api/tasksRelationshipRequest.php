@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ProjectsStoreRequest extends FormRequest
+class tasksRelationshipRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +26,7 @@ class ProjectsStoreRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'status' => false,
-            'erros' => $validator->errors(),
+            'erros'  => $validator->errors(),
         ], 422));
     }
 
@@ -38,9 +38,8 @@ class ProjectsStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'         => 'required|string|max:255',
-            'description'   => 'required|string',
-            'conclusion_at' => 'required|date',
+            'task_id' => 'required|integer|exists:tasks,id',
+            'user_id' => 'required|integer|exists:users,id',
         ];
     }
 
@@ -52,12 +51,12 @@ class ProjectsStoreRequest extends FormRequest
     public function message()
     {
         return [
-            'title.required'       => 'O Titulo é obrigatório',
-            'title.string'         => 'O Titulo deve ser um texto',
-            'title.max:255'        => 'Você ultrapassou a quantidade de caracteres para campo Titulo',
-            'description.required' => 'A Descrição é obrigatória',
-            'description.string'   => 'A Descrição deve ser um texto',
-            'conclusion_at.date'   => 'A data de conclusão deve ser uma data valida',
+            'task_id.required' => 'O ID da tarefa é obrigatório',
+            'task_id.integer'  => 'O ID da tarefa deve ser um inteiro',
+            'task_id.exists'   => 'O ID da tarefa é invalido',
+            'user_id.required' => 'O ID do usuario é obrigatório',
+            'user_id.integer'  => 'O ID do usuario deve ser um inteiro',
+            'user_id.exists'   => 'O ID do usuario é invalido',
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\tasksRelationshipRequest;
 use App\Http\Requests\Api\TasksStoreRequest;
 use App\Http\Requests\Api\TasksUpdateRequest;
 use App\Http\Resources\Api\TasksResources;
@@ -18,7 +19,7 @@ class TasksController extends Controller
     /**
      * Load class this specifc model and relations
      */
-    public function __construct(private Tasks $model, TasksRelationship $relations)
+    public function __construct(private Tasks $model, private TasksRelationship $relationship)
     {
         //
     }
@@ -28,6 +29,9 @@ class TasksController extends Controller
      */
     public function index(Request $request)
     {
+
+        $code = 200;
+
         /**
          * Validando a permissao de acesso do usuario
          */
@@ -38,6 +42,9 @@ class TasksController extends Controller
             ], 403);
         }
 
+        /**
+         * Validando os parametros da request
+         */
         $validator = Validator::make($request->all(), [
             'limit' => 'int',
             'page'  => 'int'
@@ -50,8 +57,6 @@ class TasksController extends Controller
             ], 404);
         }
 
-        $code = 200;
-
         /**
          * Buscando os registros na base
          */
@@ -63,11 +68,17 @@ class TasksController extends Controller
 
         if (!$result) {
             $code = 204;
+            $response = [];
+        } else {
+            $response = [
+                'status' => true,
+                'data'   => $result
+            ];
         }
         /**
          * Retorno da API
          */
-        return response()->json($result, $code);
+        return response()->json($response, $code);
     }
 
     /**
@@ -100,7 +111,10 @@ class TasksController extends Controller
         /**
          * Retorno da API
          */
-        return response()->json(new TasksResources($result), 201);
+        return response()->json([
+            'status' => true,
+            'data'   => new TasksResources($result)
+        ], 201);
     }
 
     /**
@@ -118,6 +132,7 @@ class TasksController extends Controller
             ], 403);
         }
         $code = 200;
+
         /**
          * Acessando o registro
          */
@@ -125,13 +140,19 @@ class TasksController extends Controller
 
         if (!$result) {
             $code = 204;
+            $response = [];
+        } else {
+            $result->tasks_relationship = $result->tasksRelationship;
+            $response = [
+                'status' => true,
+                'data'   => new TasksResources($result)
+            ];
         }
 
         /**
          * Retorno da API
          */
-        // return response()->json($result);
-        return response()->json(new TasksResources($result), $code);
+        return response()->json($response, $code);
     }
 
     /**
@@ -164,8 +185,77 @@ class TasksController extends Controller
         /**
          * Retorno da API
          */
-        // return response()->json($result);
-        return response()->json(new TasksResources($result));
+        return response()->json([
+            'status' => true,
+            'data'   => new TasksResources($result)
+        ]);
+    }
+
+    /**
+     * Relacionar a task a um usuario
+     */
+    public function relationshipStore(tasksRelationshipRequest $request) {
+
+        $code = 200;
+        $data = $request->all();
+
+        /**
+         * Checa se ja existe um relacionamento para a Tarefa e o Usuario
+         */
+        $check_relation = $this->relationship->where('task_id', $request->task_id)->where('user_id', $request->user_id)->exists();
+
+        if(!$check_relation) {
+            $result = $this->relationship->create($data);
+            $response = [
+                'status' => true,
+                'data'   => $result
+            ];
+        } else {
+            $response = [
+                'status'  => false,
+                'message' => 'Já existem um relacionamento entre esta tarefa e o usuário'
+            ];
+
+            $code = 400;
+        }
+
+
+        /**
+         * Retorno da API
+         */
+        return response()->json($response, $code);
+    }
+
+    /**
+     * Relacionar a task a um usuario
+     */
+    public function relationshipDelete(tasksRelationshipRequest $request) {
+
+        $code = 204;
+        $data = $request->all();
+
+        /**
+         * Checa se ja existe um relacionamento para a Tarefa e o Usuario
+         */
+        $check_relation = $this->relationship->where('task_id', $request->task_id)->where('user_id', $request->user_id);
+
+        if($check_relation->exists()) {
+            $result = $this->relationship->where('task_id', $request->task_id)->where('user_id', $request->user_id)->forceDelete();
+
+            $response = [];
+        } else {
+            $response = [
+                'status'  => false,
+                'message' => 'Relacionamento entre a tarefa e o usuário não encontradp'
+            ];
+
+            $code = 400;
+        }
+
+        /**
+         * Retorno da API
+         */
+        return response()->json($response, $code);
     }
 
     /**

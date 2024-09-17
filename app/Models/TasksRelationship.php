@@ -33,6 +33,6 @@ class TasksRelationship extends Model
      */
     public function tasks(): BelongsTo
     {
-        return $this->belongsTo(Tasks::class);
+        return $this->belongsTo(Tasks::class, 'id', 'task_id');
     }
 }
