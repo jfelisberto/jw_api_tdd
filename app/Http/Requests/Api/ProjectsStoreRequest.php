@@ -26,7 +26,7 @@ class ProjectsStoreRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'status' => false,
-            'erros' => $validator->errors(),
+            'erros'  => $validator->errors(),
         ], 422));
     }
 
@@ -40,7 +40,7 @@ class ProjectsStoreRequest extends FormRequest
         return [
             'title'         => 'required|string|max:255',
             'description'   => 'required|string',
-            'conclusion_at' => 'required|date',
+            'conclusion_at' => 'required|date|date_format:Y-m-d',
         ];
     }
 
@@ -52,12 +52,13 @@ class ProjectsStoreRequest extends FormRequest
     public function message()
     {
         return [
-            'title.required'       => 'O Titulo é obrigatório',
-            'title.string'         => 'O Titulo deve ser um texto',
-            'title.max:255'        => 'Você ultrapassou a quantidade de caracteres para campo Titulo',
-            'description.required' => 'A Descrição é obrigatória',
-            'description.string'   => 'A Descrição deve ser um texto',
-            'conclusion_at.date'   => 'A data de conclusão deve ser uma data valida',
+            'title.required'            => 'O Titulo é obrigatório',
+            'title.string'              => 'O Titulo deve ser um texto',
+            'title.max:255'             => 'Você ultrapassou a quantidade de caracteres para campo Titulo',
+            'description.required'      => 'A Descrição é obrigatória',
+            'description.string'        => 'A Descrição deve ser um texto',
+            'conclusion_at.date'        => 'A data de conclusão deve ser uma data valida',
+            'conclusion_at.date_format' => 'A data de conclusão deve estar no formato Ano-Mês-Dia Ex. 2024-09-01',
         ];
     }
 }

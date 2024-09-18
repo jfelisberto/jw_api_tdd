@@ -49,6 +49,7 @@ class ProjectsController extends Controller
         if ($validator->fails()) {
 
             return response()->json([
+                'ststus' => false,
                 'message' => 'Parametros invalidos para limit ou page, só pode conter valores numéricos'
             ], 404);
         }

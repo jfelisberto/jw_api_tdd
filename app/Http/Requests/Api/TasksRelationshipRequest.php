@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ProjectsUpdateRequest extends FormRequest
+class TasksRelationshipRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -38,9 +38,8 @@ class ProjectsUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'         => 'string|max:255',
-            'description'   => 'string',
-            'conclusion_at' => 'date|date_format:Y-m-d',
+            'task_id' => 'required|integer|exists:tasks,id',
+            'user_id' => 'required|integer|exists:users,id',
         ];
     }
 
@@ -52,11 +51,12 @@ class ProjectsUpdateRequest extends FormRequest
     public function message()
     {
         return [
-            'title.string'              => 'O Titulo deve ser um texto',
-            'title.max:255'             => 'Você ultrapassou a quantidade de caracteres para campo Titulo',
-            'description.string'        => 'A Descrição deve ser um texto',
-            'conclusion_at.date'        => 'A data de conclusão deve ser uma data valida',
-            'conclusion_at.date_format' => 'A data de conclusão deve estar no formato Ano-Mês-Dia Ex. 2024-09-01',
+            'task_id.required' => 'O ID da tarefa é obrigatório',
+            'task_id.integer'  => 'O ID da tarefa deve ser um inteiro',
+            'task_id.exists'   => 'O ID da tarefa é invalido',
+            'user_id.required' => 'O ID do usuario é obrigatório',
+            'user_id.integer'  => 'O ID do usuario deve ser um inteiro',
+            'user_id.exists'   => 'O ID do usuario é invalido',
         ];
     }
 }

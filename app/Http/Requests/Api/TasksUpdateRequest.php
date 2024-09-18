@@ -26,7 +26,7 @@ class TasksUpdateRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'status' => false,
-            'erros' => $validator->errors(),
+            'erros'  => $validator->errors(),
         ], 422));
     }
 
@@ -41,7 +41,7 @@ class TasksUpdateRequest extends FormRequest
             'title'         => 'string|max:255',
             'description'   => 'string',
             'status'        => 'string',
-            'conclusion_at' => 'date',
+            'conclusion_at' => 'date|date_format:Y-m-d',
         ];
     }
 
@@ -53,11 +53,12 @@ class TasksUpdateRequest extends FormRequest
     public function message()
     {
         return [
-            'title.string'       => 'O Titulo deve ser um texto',
-            'title.max:255'      => 'Você ultrapassou a quantidade de caracteres para campo Titulo',
-            'description.string' => 'A Descrição deve ser um texto',
-            'status.string'      => 'O Status deve ser um texto',
-            'duedate_at.date'    => 'A data de conclusão deve ser uma data valida',
+            'title.string'           => 'O Titulo deve ser um texto',
+            'title.max:255'          => 'Você ultrapassou a quantidade de caracteres para campo Titulo',
+            'description.string'     => 'A Descrição deve ser um texto',
+            'status.string'          => 'O Status deve ser um texto',
+            'duedate_at.date'        => 'A data de conclusão deve ser uma data valida',
+            'duedate_at.date_format' => 'A data de conclusão deve estar no formato Ano-Mês-Dia Ex. 2024-09-01',
         ];
     }
 }

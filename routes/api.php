@@ -46,6 +46,8 @@ Route::middleware([
         Route::post('/create', [TasksController::class, 'store']);
         Route::match(['put', 'patch'], '/{id}', [TasksController::class, 'update']);
         Route::delete('/{id}', [TasksController::class, 'destroy']);
+
+        Route::post('/report', [TasksController::class, 'reports']);
     });
 
     Route::prefix('tasks_relationship')->group(function () {

@@ -1,10 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\TasksController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/tasks/report', [TasksController::class, 'reports']);
 
 Route::middleware([
     'auth:sanctum',

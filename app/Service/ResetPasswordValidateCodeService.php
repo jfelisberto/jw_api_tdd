@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Class PasswordResetService
  *
- * Esta classe fornece métodos para validar códigos de redefinição de senha.
+ * Esta classe fornece metodos para validar codigos de redefinicaoo de senha
  */
 class ResetPasswordValidateCodeService
 {

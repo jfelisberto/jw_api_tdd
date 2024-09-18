@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Tasks;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
@@ -17,6 +18,11 @@ class TasksControllerTest extends TestCase
      */
     public function testGetListTasksEndpoint(): void
     {
+
+        /**
+         * Criando usuarios fake na base
+         */
+        User::factory(3)->create();
 
         /**
          * Criando registros fake na base

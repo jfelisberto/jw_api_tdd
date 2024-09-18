@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Projects;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -18,6 +19,11 @@ class ProjectsControllerTest extends TestCase
      */
     public function testGetListProjectsEndpoint(): void
     {
+
+        /**
+         * Criando usuarios fake na base
+         */
+        User::factory(3)->create();
 
         /**
          * Criando registros fake na base

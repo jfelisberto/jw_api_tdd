@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class tasksRelationshipRequest extends FormRequest
+class ReportsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -38,8 +38,9 @@ class tasksRelationshipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'task_id' => 'required|integer|exists:tasks,id',
-            'user_id' => 'required|integer|exists:users,id',
+            'type'              => 'required|string',
+            'filter.created_at' => 'date_format:Y-m-d',
+            'filter.duedate_at' => 'date_format:Y-m-d',
         ];
     }
 
@@ -51,12 +52,10 @@ class tasksRelationshipRequest extends FormRequest
     public function message()
     {
         return [
-            'task_id.required' => 'O ID da tarefa é obrigatório',
-            'task_id.integer'  => 'O ID da tarefa deve ser um inteiro',
-            'task_id.exists'   => 'O ID da tarefa é invalido',
-            'user_id.required' => 'O ID do usuario é obrigatório',
-            'user_id.integer'  => 'O ID do usuario deve ser um inteiro',
-            'user_id.exists'   => 'O ID do usuario é invalido',
+            'type.required'                 => 'O campo Type é obrigatório',
+            'filter.type.string'            => 'O campo Type deve ser uma string',
+            'filter.created_at.date_format' => 'A data de criação deve estar no formato Ano-Mês-Dia Ex. 2024-09-01',
+            'filter.duedate_at.date_format' => 'A data de conclusão deve estar no formato Ano-Mês-Dia Ex. 2024-09-01',
         ];
     }
 }
