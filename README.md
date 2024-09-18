@@ -36,6 +36,11 @@ Para iniciar o projto criado com Laravel, no terminal e exute o comando abaixo:
 Para iniciar a fila de envio e-mail, abra um outro terminal e execute o comando abaixo:
 * #php artisan queue:work --queue sendemail
 
+Para rodar os testes, você pode executar o comando abaixo
+* #php artisan test
+
+Segue junto ao projeto a collection do Postman, para testar as funcionalidades da API *REST API IP4Y.postman_collection.json*
+
 ## Liceça
 
 Este é um software de código aberto licenciado sob a [MIT license](https://opensource.org/licenses/MIT).

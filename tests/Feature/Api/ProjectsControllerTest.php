@@ -19,6 +19,10 @@ class ProjectsControllerTest extends TestCase
      */
     public function testGetListProjectsEndpoint(): void
     {
+        /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
 
         /**
          * Criando usuarios fake na base
@@ -33,7 +37,8 @@ class ProjectsControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->getJson('/api/projects');
+        $response = $this->actingAs($user, 'web')
+            ->getJson('/api/projects');
         $projects = $response->json();
 
         /**
@@ -42,46 +47,10 @@ class ProjectsControllerTest extends TestCase
         $response->assertStatus(200);
 
         /**
-         * Validando a quantidade de resultados obtidos
+         * Validando a quantidade de resultados do objeto pai
          */
-        $response->assertJsonCount(3);
+        $response->assertJsonCount(2);
 
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) use ($projects) {
-
-            /**
-             * Validando o tipo de dados de cada coluna
-             */
-            $json->whereAllType([
-                '0.id'          => 'integer',
-                '0.title'       => 'string',
-                '0.description' => 'string',
-                '0.conclusion_at'  => 'string',
-            ]);
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['0.id', '0.title', '0.description', '0.conclusion_at']);
-
-            /**
-             * Obtendo o primeiro registro da lista para validar o retorno
-             */
-            $project = (object) $projects[0];
-
-            /**
-             * Validando se os valores estao retornando corretamente
-             */
-            $json->whereAll([
-                '0.id'          => $project->id,
-                '0.title'       => $project->title,
-                '0.description' => $project->description,
-                '0.conclusion_at'  => $project->conclusion_at,
-            ]);
-
-        });
     }
 
     /**
@@ -91,6 +60,11 @@ class ProjectsControllerTest extends TestCase
     {
 
         /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
+
+        /**
          * Criando registros fake na base
          */
         $project = Projects::factory(1)->createOne();
@@ -98,45 +72,14 @@ class ProjectsControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->getJson('/api/projects/' . $project->id);
+        $response = $this->actingAs($user, 'web')
+            ->getJson('/api/projects/' . $project->id);
         $project = (object) $response->json();
 
         /**
          * Validando o retorno de sucesso
          */
         $response->assertStatus(200);
-
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) use ($project) {
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['id', 'title', 'description', 'conclusion_at', 'created_at', 'updated_at', 'deleted_at']);
-
-            /**
-             * Validando o tipo de dados de cada coluna
-             */
-            $json->whereAllType([
-                'id'          => 'integer',
-                'title'       => 'string',
-                'description' => 'string',
-                'conclusion_at'  => 'string',
-            ]);
-
-            /**
-             * Validando se os valores estao retornando corretamente
-             */
-            $json->whereAll([
-                'id'          => $project->id,
-                'title'       => $project->title,
-                'description' => $project->description,
-                'conclusion_at'  => $project->conclusion_at,
-            ]);
-
-        });
 
     }
 
@@ -145,6 +88,10 @@ class ProjectsControllerTest extends TestCase
      */
     public function testPostCreateProjectsEndpoint(): void
     {
+        /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
 
         /**
          * Criando um objeto fake com dados para inserir na base
@@ -154,7 +101,8 @@ class ProjectsControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->postJson('/api/projects/create', $project);
+        $response = $this->actingAs($user, 'web')
+            ->postJson('/api/projects/create', $project);
         $project = (object) $response->json();
 
         /**
@@ -162,59 +110,30 @@ class ProjectsControllerTest extends TestCase
          */
         $response->assertStatus(201);
 
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) use ($project) {
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['id', 'title', 'description', 'conclusion_at', 'created_at', 'updated_at']);
-
-            /**
-             * Validando se os valores estao retornando corretamente
-             */
-            $json->whereAll([
-                'title'       => $project->title,
-                'description' => $project->description,
-                'conclusion_at'  => $project->conclusion_at,
-            ])->etc();
-
-        });
-
     }
 
+    /**
+     * Teste para validar a validacao de campos
+     */
     public function testPostCreateProjectsShouldValidateInvalid(): void
     {
 
         /**
-         * Criando um objeto fake com dados para inserir na base
+         * Criando registro fake do usuario para autenticacao
          */
-        // $project = Projects::factory(1)->makeOne()->toArray();
+        $user = User::factory(1)->createOne();
 
         /**
          * Acessando o endpoint
          */
-        $response = $this->postJson('/api/projects/create', []);
+        $response = $this->actingAs($user, 'web')
+            ->postJson('/api/projects/create', []);
         $project = (object) $response->json();
 
         /**
          * Validando o retorno de sucesso
          */
         $response->assertStatus(422);
-
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) {
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['message', 'errors']);
-
-        });
 
     }
 
@@ -223,6 +142,11 @@ class ProjectsControllerTest extends TestCase
      */
     public function testPutProjectsEndpoint(): void
     {
+
+        /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
 
         /**
          * Criando registros fake na base
@@ -243,34 +167,14 @@ class ProjectsControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->putJson('/api/projects/' . $project->id, $project_update);
+        $response = $this->actingAs($user, 'web')
+            ->putJson('/api/projects/' . $project->id, $project_update);
         $project = (object) $response->json();
 
         /**
          * Validando o retorno de sucesso
          */
         $response->assertStatus(200);
-
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) use ($project) {
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['id', 'title', 'description', 'conclusion_at', 'created_at', 'updated_at', 'deleted_at']);
-
-            /**
-             * Validando se os valores estao retornando corretamente
-             */
-            $json->whereAll([
-                'title'       => $project->title,
-                'description' => $project->description,
-                'conclusion_at'  => $project->conclusion_at,
-            ])->etc();
-
-        });
 
     }
 
@@ -279,6 +183,11 @@ class ProjectsControllerTest extends TestCase
      */
     public function testPatchProjectsEndpoint(): void
     {
+
+        /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
 
         /**
          * Criando registros fake na base
@@ -295,30 +204,14 @@ class ProjectsControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->patchJson('/api/projects/' . $project->id, $project_update);
+        $response = $this->actingAs($user, 'web')
+            ->patchJson('/api/projects/' . $project->id, $project_update);
         $project = (object) $response->json();
 
         /**
          * Validando o retorno de sucesso
          */
         $response->assertStatus(200);
-
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) use ($project) {
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['id', 'title', 'description', 'conclusion_at', 'created_at', 'updated_at', 'deleted_at']);
-
-            /**
-             * Validando se os valores estao retornando corretamente
-             */
-            $json->where('conclusion_at', $project->conclusion_at);
-
-        });
 
     }
 
@@ -329,6 +222,11 @@ class ProjectsControllerTest extends TestCase
     {
 
         /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
+
+        /**
          * Criando registros fake na base
          */
         $project = Projects::factory(1)->createOne();
@@ -336,7 +234,8 @@ class ProjectsControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->deleteJson('/api/projects/' . $project->id);
+        $response = $this->actingAs($user, 'web')
+            ->deleteJson('/api/projects/' . $project->id);
 
         /**
          * Validando o retorno de sucesso

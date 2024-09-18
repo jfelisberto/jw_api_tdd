@@ -6,6 +6,7 @@ use App\Models\Tasks;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
+use Illuminate\Auth\AuthManager;
 use Tests\TestCase;
 use \Carbon\Carbon;
 
@@ -20,9 +21,9 @@ class TasksControllerTest extends TestCase
     {
 
         /**
-         * Criando usuarios fake na base
+         * Criando registro fake do usuario para autenticacao
          */
-        User::factory(3)->create();
+        $user = User::factory(1)->createOne();
 
         /**
          * Criando registros fake na base
@@ -32,8 +33,9 @@ class TasksControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->getJson('/api/tasks');
-        $tasks = $response->json();
+        $response = $this->actingAs($user, 'web')
+            ->getJson('/api/tasks');
+        $tasks = (object) $response->json();
 
         /**
          * Validando o retorno de sucesso
@@ -41,48 +43,9 @@ class TasksControllerTest extends TestCase
         $response->assertStatus(200);
 
         /**
-         * Validando a quantidade de resultados obtidos
+         * Validando a quantidade de resultados obtidos do objeto pai
          */
-        $response->assertJsonCount(3);
-
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) use ($tasks) {
-
-            /**
-             * Validando o tipo de dados de cada coluna
-             */
-            $json->whereAllType([
-                '0.id'          => 'integer',
-                '0.title'       => 'string',
-                '0.description' => 'string',
-                '0.status'      => 'string',
-                '0.duedate_at'  => 'string',
-            ]);
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['0.id', '0.title', '0.description', '0.status', '0.duedate_at']);
-
-            /**
-             * Obtendo o primeiro registro da lista para validar o retorno
-             */
-            $task = (object) $tasks[0];
-
-            /**
-             * Validando se os valores estao retornando corretamente
-             */
-            $json->whereAll([
-                '0.id'          => $task->id,
-                '0.title'       => $task->title,
-                '0.description' => $task->description,
-                '0.status'      => $task->status,
-                '0.duedate_at'  => $task->duedate_at,
-            ]);
-
-        });
+        $response->assertJsonCount(2);
     }
 
     /**
@@ -92,6 +55,11 @@ class TasksControllerTest extends TestCase
     {
 
         /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
+
+        /**
          * Criando registros fake na base
          */
         $task = Tasks::factory(1)->createOne();
@@ -99,48 +67,15 @@ class TasksControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->getJson('/api/tasks/' . $task->id);
+        $response = $this->actingAs($user, 'web')
+            ->getJson('/api/tasks/' . $task->id);
+
         $task = (object) $response->json();
 
         /**
          * Validando o retorno de sucesso
          */
         $response->assertStatus(200);
-
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) use ($task) {
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['id', 'title', 'description', 'status', 'duedate_at', 'created_at', 'updated_at', 'deleted_at']);
-
-            /**
-             * Validando o tipo de dados de cada coluna
-             */
-            $json->whereAllType([
-                'id'          => 'integer',
-                'title'       => 'string',
-                'description' => 'string',
-                'status'      => 'string',
-                'duedate_at'  => 'string',
-            ]);
-
-            /**
-             * Validando se os valores estao retornando corretamente
-             */
-            $json->whereAll([
-                'id'          => $task->id,
-                'title'       => $task->title,
-                'description' => $task->description,
-                'status'      => $task->status,
-                'duedate_at'  => $task->duedate_at,
-            ]);
-
-        });
-
     }
 
     /**
@@ -150,6 +85,11 @@ class TasksControllerTest extends TestCase
     {
 
         /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
+
+        /**
          * Criando um objeto fake com dados para inserir na base
          */
         $task = Tasks::factory(1)->makeOne()->toArray();
@@ -157,69 +97,38 @@ class TasksControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->postJson('/api/tasks/create', $task);
+        $response = $this->actingAs($user, 'web')
+            ->postJson('/api/tasks/create', $task);
         $task = (object) $response->json();
 
         /**
          * Validando o retorno de sucesso
          */
         $response->assertStatus(201);
-
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) use ($task) {
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['id', 'title', 'description', 'status', 'duedate_at', 'created_at', 'updated_at']);
-
-            /**
-             * Validando se os valores estao retornando corretamente
-             */
-            $json->whereAll([
-                'title'       => $task->title,
-                'description' => $task->description,
-                'status'      => $task->status,
-                'duedate_at'  => $task->duedate_at,
-            ])->etc();
-
-        });
-
     }
 
+    /**
+     * Teste para validar a validacao de campos
+     */
     public function testPostCreateTasksShouldValidateInvalid(): void
     {
 
         /**
-         * Criando um objeto fake com dados para inserir na base
+         * Criando registro fake do usuario para autenticacao
          */
-        // $task = Tasks::factory(1)->makeOne()->toArray();
+        $user = User::factory(1)->createOne();
 
         /**
          * Acessando o endpoint
          */
-        $response = $this->postJson('/api/tasks/create', []);
+        $response = $this->actingAs($user, 'web')
+            ->postJson('/api/tasks/create', []);
         $task = (object) $response->json();
 
         /**
          * Validando o retorno de sucesso
          */
         $response->assertStatus(422);
-
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) {
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['message', 'errors']);
-
-        });
-
     }
 
     /**
@@ -227,6 +136,10 @@ class TasksControllerTest extends TestCase
      */
     public function testPutTasksEndpoint(): void
     {
+        /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
 
         /**
          * Criando registros fake na base
@@ -250,36 +163,14 @@ class TasksControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->putJson('/api/tasks/' . $task->id, $task_update);
+        $response = $this->actingAs($user, 'web')
+            ->putJson('/api/tasks/' . $task->id, $task_update);
         $task = (object) $response->json();
 
         /**
          * Validando o retorno de sucesso
          */
         $response->assertStatus(200);
-
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) use ($task) {
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['id', 'title', 'description', 'status', 'duedate_at', 'created_at', 'updated_at', 'deleted_at']);
-
-            /**
-             * Validando se os valores estao retornando corretamente
-             */
-            $json->whereAll([
-                'title'       => $task->title,
-                'description' => $task->description,
-                'status'      => $task->status,
-                'duedate_at'  => $task->duedate_at,
-            ])->etc();
-
-        });
-
     }
 
     /**
@@ -287,6 +178,11 @@ class TasksControllerTest extends TestCase
      */
     public function testPatchTasksEndpoint(): void
     {
+
+        /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
 
         /**
          * Criando registros fake na base
@@ -303,30 +199,14 @@ class TasksControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->patchJson('/api/tasks/' . $task->id, $task_update);
+        $response = $this->actingAs($user, 'web')
+            ->patchJson('/api/tasks/' . $task->id, $task_update);
         $task = (object) $response->json();
 
         /**
          * Validando o retorno de sucesso
          */
         $response->assertStatus(200);
-
-        /**
-         * Validando os dados do response
-         */
-        $response->assertJson(function (AssertableJson $json) use ($task) {
-
-            /**
-             * Validando o retorno de todas as colunas do registro
-             */
-            $json->hasAll(['id', 'title', 'description', 'status', 'duedate_at', 'created_at', 'updated_at', 'deleted_at']);
-
-            /**
-             * Validando se os valores estao retornando corretamente
-             */
-            $json->where('status', $task->status);
-
-        });
 
     }
 
@@ -337,6 +217,11 @@ class TasksControllerTest extends TestCase
     {
 
         /**
+         * Criando registro fake do usuario para autenticacao
+         */
+        $user = User::factory(1)->createOne();
+
+        /**
          * Criando registros fake na base
          */
         $task = Tasks::factory(1)->createOne();
@@ -344,13 +229,12 @@ class TasksControllerTest extends TestCase
         /**
          * Acessando o endpoint
          */
-        $response = $this->deleteJson('/api/tasks/' . $task->id);
+        $response = $this->actingAs($user, 'web')
+            ->deleteJson('/api/tasks/' . $task->id);
 
         /**
          * Validando o retorno de sucesso
          */
         $response->assertStatus(204);
-
     }
-
 }

@@ -22,7 +22,7 @@ class EmailVerificationTest extends TestCase
 
         $user = User::factory()->withPersonalTeam()->unverified()->create();
 
-        $response = $this->actingAs($user)->get('/email/verify');
+        $response = $this->actingAs($user,'web')->get('/email/verify');
 
         $response->assertStatus(200);
     }
@@ -43,7 +43,7 @@ class EmailVerificationTest extends TestCase
             ['id' => $user->id, 'hash' => sha1($user->email)]
         );
 
-        $response = $this->actingAs($user)->get($verificationUrl);
+        $response = $this->actingAs($user,'web')->get($verificationUrl);
 
         Event::assertDispatched(Verified::class);
 
@@ -65,7 +65,7 @@ class EmailVerificationTest extends TestCase
             ['id' => $user->id, 'hash' => sha1('wrong-email')]
         );
 
-        $this->actingAs($user)->get($verificationUrl);
+        $this->actingAs($user,'web')->get($verificationUrl);
 
         $this->assertFalse($user->fresh()->hasVerifiedEmail());
     }
