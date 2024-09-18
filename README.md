@@ -7,12 +7,10 @@ Este é um sistema de geranciamento de Tarefas, utilizando o Framework Laravel
 ## Requisitos
 * PHP 8.3
 * Composer
-* MSSQL
 
 ## Como rodar o projeto
 Para uso do sistema siga os passo abaixo:
 * Comece fazendo uma cópia do arquivo *.env.example* para *.env*
-* Insira suas credenciais de acesso ao MSSQL
 * - DB_USERNAME = usuario de acesso ao banco
 * - DB_PASSWORD = a senha do usuario de acesso ao banco
 * Insira suas credênciais de E-mail e configurações no arquivo *.env*:
@@ -23,7 +21,7 @@ Para uso do sistema siga os passo abaixo:
 * - MAIL_ENCRYPTION = a criptografia utilizada pelo seu servidor
 * - MAIL_FROM_ADDRESS = seu e-mail
 
-No seu servidor MSSQL crie o banco *ipfory*
+No seu servidor de Banco de Dados crie o banco *ipfory*
 <br />
 
 Na pasta do projeto, atravez do sonsole, execute os seguintes comandos:
