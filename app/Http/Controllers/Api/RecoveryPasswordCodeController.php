@@ -9,13 +9,12 @@ use App\Http\Requests\ResetPasswordValidateCodeRequest;
 use App\Jobs\sendEmailJob;
 use App\Models\User;
 use App\Models\PasswordResetTokens;
-use App\Service\ResetPasswordValidateCodeService;
+use App\Services\ResetPasswordValidateCodeService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-// use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
 class RecoveryPasswordCodeController extends Controller
