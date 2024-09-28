@@ -1,6 +1,0 @@
-[
-  {
-    "type": "sqlite",
-    "path": "/var/www/html/jefweb/jw_api_tdd/database/database.sqlite"
-  }
-]
